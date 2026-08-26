@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="ValerisBank logo">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0B4B40"/><stop offset="1" stop-color="#063B32"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E8C46A"/><stop offset="1" stop-color="#A66A00"/></linearGradient>
+  </defs>
+  <circle cx="90" cy="90" r="78" fill="url(#g)"/>
+  <circle cx="90" cy="90" r="70" fill="none" stroke="url(#gold)" stroke-width="4"/>
+  <path d="M48 55h22l20 55 20-55h22l-33 76H81L48 55z" fill="#fff"/>
+  <path d="M65 48h50" stroke="url(#gold)" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="90" cy="140" r="5" fill="url(#gold)"/>
+</svg>

@@ -133,7 +133,7 @@ app.post('/api/signup', async (req,res) => {
     if (duplicate) return res.status(409).json({ message:'An account with that email or phone already exists.' });
     const id = crypto.randomUUID(); const hp = hashPassword(password);
     const user = { id, accountNumber:'VL'+String(Date.now()).slice(-8)+crypto.randomInt(10,100), firstName:String(firstName).trim(), lastName:String(lastName).trim(), email:e, country:String(country).trim(), phone:String(phone).trim(), passwordHash:hp.hash, passwordSalt:hp.salt, createdAt:new Date().toISOString(), data:defaultData() };
-    user.data.activity.push(activity('Account Created',0,'Completed','Your individual demo dashboard is ready.'));
+    user.data.activity.push(activity('Welcome Bouns',50,'Completed','Your individual demo dashboard is ready.'));
     await users.insertOne(user);
     const token = crypto.randomBytes(32).toString('hex'); sessions.set(token,id);
     res.status(201).json({ token, user:publicUser(user) });

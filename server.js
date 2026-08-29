@@ -83,7 +83,7 @@ function settleMaturedInvestments(data) {
       data.investmentBalance = Math.max(0, Number(data.investmentBalance || 0) - Number(inv.amount || 0));
       data.mainBalance += Number(inv.amount || 0) + Number(inv.profit || 0);
       data.investmentProfit += Number(inv.profit || 0);
-      data.activity.push(activity('Demo Investment Matured', Number(inv.amount || 0) + Number(inv.profit || 0), 'Completed', 'Capital and 30% demo profit returned after the 24-hour simulation period.'));
+      data.activity.push(activity('Investment Matured', Number(inv.amount || 0) + Number(inv.profit || 0), 'Completed', 'Capital and 30% profit returned after the 24-hour.'));
       changed = true;
     }
   }
@@ -133,7 +133,7 @@ app.post('/api/signup', async (req,res) => {
     if (duplicate) return res.status(409).json({ message:'An account with that email or phone already exists.' });
     const id = crypto.randomUUID(); const hp = hashPassword(password);
     const user = { id, accountNumber:'VL'+String(Date.now()).slice(-8)+crypto.randomInt(10,100), firstName:String(firstName).trim(), lastName:String(lastName).trim(), email:e, country:String(country).trim(), phone:String(phone).trim(), passwordHash:hp.hash, passwordSalt:hp.salt, createdAt:new Date().toISOString(), data:defaultData() };
-    user.data.activity.push(activity('Welcome Bouns',50,'Completed','Your individual demo dashboard is ready.'));
+    user.data.activity.push(activity('Welcome Bouns',50,'Completed','Your dashboard is ready.'));
     await users.insertOne(user);
     const token = crypto.randomBytes(32).toString('hex'); sessions.set(token,id);
     res.status(201).json({ token, user:publicUser(user) });
@@ -169,8 +169,8 @@ app.post('/api/logout', auth, (req,res) => { sessions.delete(req.token); res.jso
 app.post('/api/test/verification-code', auth, (req,res) => {
   const code = crypto.randomInt(100000,1000000).toString();
   codes.set(req.userId,{ code, expires:Date.now()+300000 });
-  console.log(`[VALERIS DEMO OTP] user=${req.userId} code=${code} expires=5m`);
-  res.json({ ok:true, message:'Demo code generated. Check the server/Render logs.' });
+  console.log(`[VALERIS OTP] user=${req.userId} code=${code} expires=5m`);
+  res.json({ ok:true, message:'code generated. Check the server log.' });
 });
 function checkCode(userId, code) {
   const record = codes.get(userId);
@@ -182,8 +182,8 @@ app.post('/api/test/fund', auth, async (req,res) => {
   if (!Number.isFinite(amount) || amount<=0) return res.status(400).json({ message:'Enter a valid funding amount.' });
   if (!checkCode(req.userId,req.body?.code)) return res.status(400).json({ message:'Invalid or expired verification code.' });
   req.user.data ??= defaultData(); req.user.data.mainBalance += amount;
-  req.user.data.activity.push(activity('Demo Wallet Funding',amount,'Completed','Test funding only.'));
-  await save(req); res.json({ ok:true, message:`Demo funding verified. £${amount.toFixed(2)} added.` });
+  req.user.data.activity.push(activity('Wallet Funding',amount,'Completed','Test funding only.'));
+  await save(req); res.json({ ok:true, message:`funding verified. £${amount.toFixed(2)} added.` });
 });
 
 app.get('/api/test/tasks', auth, (req,res) => res.json({ tasks:TASKS }));
@@ -196,32 +196,32 @@ app.post('/api/test/tasks/:id/submit', auth, async (req,res) => {
   if (!validateTask(id,req.body)) return res.status(400).json({ message:'Please complete the activity correctly before claiming the reward.' });
   d.dailyTaskCompletions[id] = new Date().toISOString();
   d.taskBalance += task.reward; d.taskEarnings += task.reward; d.completedTasks += 1;
-  d.activity.push(activity('Task Reward: '+task.title,task.reward,'Completed','Participative demo task completed.'));
-  await save(req); res.json({ ok:true, message:`Task completed. £${task.reward.toFixed(2)} demo reward added.` });
+  d.activity.push(activity('Task Reward: '+task.title,task.reward,'Completed','Participative task completed.'));
+  await save(req); res.json({ ok:true, message:`Task completed. £${task.reward.toFixed(2)} reward added.` });
 });
 
 app.post('/api/test/withdraw', auth, async (req,res) => {
   const amount = Number(req.body?.amount); req.user.data ??= defaultData(); settleMaturedInvestments(req.user.data);
   const d=req.user.data, total=d.mainBalance+d.taskBalance+d.investmentProfit;
   if (!Number.isFinite(amount)||amount<=0) return res.status(400).json({ message:'Enter a valid withdrawal amount.' });
-  if (amount>total) return res.status(400).json({ message:'Withdrawal amount exceeds eligible demo balance.' });
+  if (amount>total) return res.status(400).json({ message:'Withdrawal amount exceeds eligible balance.' });
   let remaining=amount;
   for (const key of ['mainBalance','taskBalance','investmentProfit']) { const take=Math.min(Number(d[key]||0),remaining); d[key]-=take; remaining-=take; if(remaining<=0) break; }
-  d.activity.push(activity('Demo Withdrawal',-amount,'Completed','Your withdrawal has been processed.'));
+  d.activity.push(activity('Withdrawal',-amount,'Completed','Your withdrawal has been processed.'));
   await save(req); res.json({ ok:true, message:'Your withdrawal has been processed.' });
 });
 
 app.post('/api/test/invest', auth, async (req,res) => {
   const amount = Number(req.body?.amount); req.user.data ??= defaultData(); const d=req.user.data;
   if (!Number.isFinite(amount)||amount<=0) return res.status(400).json({ message:'Enter a valid amount.' });
-  if (amount>d.mainBalance) return res.status(400).json({ message:'Simulation amount exceeds demo wallet balance.' });
+  if (amount>d.mainBalance) return res.status(400).json({ message:'amount exceeds wallet balance.' });
   const profit = Math.round(amount*0.30*100)/100;
   const startedAt = new Date().toISOString(); const maturesAt = new Date(Date.now()+24*60*60*1000).toISOString();
   const inv = { id:crypto.randomUUID(), amount, profit, startedAt, maturesAt, status:'active' };
   d.mainBalance -= amount; d.investmentBalance += amount; d.investments.push(inv);
-  d.activity.push(activity('Demo Investment Started',-amount,'Active','30% demo return scheduled after 24 hours.'));
+  d.activity.push(activity('Investment Started',-amount,'Active','30% return scheduled after 24 hours.'));
   await save(req);
-  res.json({ ok:true, investment:inv, message:'Demo investment started. Capital plus a 30% simulated profit will mature after 24 hours.' });
+  res.json({ ok:true, investment:inv, message:'investment started. Capital plus a 30% profit will mature after 24 hours.' });
 });
 
 app.use(express.static(__dirname));
@@ -235,7 +235,7 @@ async function start() {
     await users.createIndex({ phone:1 }, { unique:true });
     await users.createIndex({ id:1 }, { unique:true });
     console.log(`MongoDB connected: ${MONGODB_DB}`);
-    app.listen(PORT, () => console.log(`ValerisBank demo running on ${PORT}`));
+    app.listen(PORT, () => console.log(`ValerisBank running on ${PORT}`));
   } catch (error) {
     console.error('MongoDB connection failed:', error);
     process.exit(1);

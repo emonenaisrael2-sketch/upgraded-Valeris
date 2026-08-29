@@ -36,7 +36,7 @@ function publicUser(u) {
 }
 function defaultData() {
   return {
-    mainBalance: 0,
+    mainBalance: 50,
     taskBalance: 0,
     investmentBalance: 0,
     taskEarnings: 0,

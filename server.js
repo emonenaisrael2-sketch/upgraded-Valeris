@@ -83,7 +83,7 @@ function settleMaturedInvestments(data) {
       data.investmentBalance = Math.max(0, Number(data.investmentBalance || 0) - Number(inv.amount || 0));
       data.mainBalance += Number(inv.amount || 0) + Number(inv.profit || 0);
       data.investmentProfit += Number(inv.profit || 0);
-      data.activity.push(activity('Demo Investment Matured', Number(inv.amount || 0) + Number(inv.profit || 0), 'Completed', 'Capital and 30% profit returned after the 24-hour period.'));
+      data.activity.push(activity('Investment Matured', Number(inv.amount || 0) + Number(inv.profit || 0), 'Completed', 'Capital and 30% profit returned after the 24-hour period.'));
       changed = true;
     }
   }
